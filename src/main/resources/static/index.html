@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Movie CRUD Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Movie CRUD Demo</h1>
+
+  <h2>Search & Save from OMDb</h2>
+  <input id="searchTitle" placeholder="Enter movie title">
+  <button onclick="fetchMovie()">Fetch & Save</button>
+
+  <h2>Movie List</h2>
+  <ul id="movieList"></ul>
+
+  <script>
+    async function fetchMovie() {
+      const title = document.getElementById("searchTitle").value;
+      await fetch(`/api/movies/fetch/${title}`, { method: "POST" });
+      loadMovies();
+    }
+
+    async function loadMovies() {
+      const res = await fetch("/api/movies");
+      const movies = await res.json();
+      const list = document.getElementById("movieList");
+      list.innerHTML = "";
+      movies.forEach(m => {
+        const li = document.createElement("li");
+        const imgHtml = m.posterUrl ? `<img src="${m.posterUrl}" alt="poster" class="poster"> ` : '';
+        li.innerHTML = `${imgHtml}${m.title} (${m.year}) <button onclick="deleteMovie(${m.id})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    async function deleteMovie(id) {
+      await fetch(`/api/movies/${id}`, { method: "DELETE" });
+      loadMovies();
+    }
+
+    loadMovies();
+  </script>
+</body>
+</html>
